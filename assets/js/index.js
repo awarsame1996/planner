@@ -39,9 +39,12 @@ const workingHours = [
 const timeBlocks = $("#time-blocks");
 //accessing date and time
 const currentDateStamp = moment();
-
+// add
 const renderDate = () => {
-  return moment().format("ddd, MMMM, YYYY");
+  return moment().format("dddd, MMMM Do, YYYY");
+};
+const renderTime = () => {
+  return moment().format("h:mm:ss a");
 };
 
 // target save button
@@ -51,12 +54,19 @@ const renderDate = () => {
 //});
 
 $("#currentDay").text(renderDate);
+$("#currentTime").text(renderTime);
 
-$("#saveBtn").click(function () {
+$("#refreshBtn").click(function () {
   console.log("button clicked");
 });
 
-const getEventForTimeBlock = (workingHour) => {};
+const getEventForTimeBlock = (hour) => {
+  const tasks = readFromLocalStorage("planner");
+  // get task by hour from LS
+  console.log(tasks);
+  const task = tasks[hour];
+  return task;
+};
 const getClassName = (workingHour) => {
   const currentHour = moment().hour();
   //if workingHour is present
@@ -73,20 +83,20 @@ const getClassName = (workingHour) => {
 const renderTimeBlocks = () => {
   const renderTimeBlock = (workingHour) => {
     console.log(workingHour);
-    //create timeblock
+    //create time block
     const timeBlock = `<div class="row p-2 my-2 ${getClassName(
       workingHour.key
     )}">
       <div class="col-md-1 col-sm-12 text-center my-1 d-flex flex-column justify-content-center">${
         workingHour.label
       }</div>
-      <textarea class="col-md-9 col-sm-12" rows="3">${getEventForTimeBlock(
+      <textarea class="col-md-9 col-sm-12" rows="3" data-textarea-key = ${
         workingHour.key
-      )}</textarea>
+      }>${getEventForTimeBlock(workingHour.key)}</textarea>
       <div class="col-md-2 col-sm-12 text-center my-1 d-flex flex-column justify-content-center">
         <button type="button" data-hour=${
           workingHour.key
-        } class="btn btn-success">Save</button>
+        }  class="btn btn-success">Save</button>
       </div>
     </div>`;
 
@@ -99,19 +109,44 @@ const renderTimeBlocks = () => {
 const onReady = () => {
   console.log("ready");
   renderDate();
+  readFromLocalStorage();
   renderTimeBlocks();
+  //refresh every 5 minutes - TODO
+};
+const readFromLocalStorage = (key, defaultValue) => {
+  //get from LS with key name
+  const dataFromLS = localStorage.getItem(key);
+
+  //parse data
+  const parsedData = JSON.parse(dataFromLS);
+  console.log(parsedData);
+  if (parsedData) {
+    return parsedData;
+  } else {
+    return defaultValue;
+  }
+};
+
+const writeToLocalStorage = (key, value) => {
+  //value turned to string
+  const stringifiedValue = JSON.stringify(value);
+
+  localStorage.setItem(key, stringifiedValue);
 };
 const saveToLocalStorage = (event) => {
   const target = $(event.target);
-  console.log("clicked");
 
-  //if target is a button
   if (target.is("button")) {
-    console.log("YAY");
+    console.log("click");
     const key = target.attr("data-hour");
     console.log(key);
-    const value = $(`textarea[data-textarea-key=${key}`]).val
+    const value = $(`textarea[data-textarea-key="${key}"]`).val();
     console.log(value);
+    const planner = readFromLocalStorage("planner", {});
+
+    planner[key] = value;
+
+    writeToLocalStorage("planner", planner);
   }
 };
 
