@@ -29,6 +29,9 @@
       <p id="currentDay" class="lead"></p>
       <p id="currentTime" class="lead"></p>
       <div class="my-1 d-flex flex-column justify-content-center">
+        <p class="lead">
+          starting a new day, click the button below to reset planner
+        </p>
         <button
           type="button"
           id="refreshBtn"
@@ -38,7 +41,9 @@
         </button>
       </div>
     </header>
-    <div id="time-blocks" class="container"></div>
+    <div id="timeBlock">
+      <div id="time-blocks" class="container"></div>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="./assets/js/index.js"></script>

@@ -43,6 +43,7 @@ const currentDateStamp = moment();
 const renderDate = () => {
   return moment().format("dddd, MMMM Do, YYYY");
 };
+
 const renderTime = () => {
   return moment().format("h:mm:ss a");
 };
@@ -56,15 +57,15 @@ const renderTime = () => {
 $("#currentDay").text(renderDate);
 $("#currentTime").text(renderTime);
 
-$("#refreshBtn").click(function () {
-  console.log("button clicked");
-});
-
 const getEventForTimeBlock = (hour) => {
-  const tasks = readFromLocalStorage("planner");
+  const tasks = readFromLocalStorage("planner", workingHours);
   // get task by hour from LS
   console.log(tasks);
-  const task = tasks[hour];
+  let task = tasks[hour];
+  if (task == undefined) {
+    task = "";
+    return task;
+  }
   return task;
 };
 const getClassName = (workingHour) => {
@@ -105,14 +106,21 @@ const renderTimeBlocks = () => {
   };
   workingHours.forEach(renderTimeBlock);
 };
+const resetPlanner = () => {
+  localStorage.clear();
+  timeBlocks.remove();
+  $("#timeBlock").append(` <div id="time-blocks" class="container"></div>`);
+  readFromLocalStorage();
+  renderTimeBlocks();
+};
 
 const onReady = () => {
-  console.log("ready");
   renderDate();
   readFromLocalStorage();
   renderTimeBlocks();
   //refresh every 5 minutes - TODO
 };
+
 const readFromLocalStorage = (key, defaultValue) => {
   //get from LS with key name
   const dataFromLS = localStorage.getItem(key);
@@ -126,7 +134,6 @@ const readFromLocalStorage = (key, defaultValue) => {
     return defaultValue;
   }
 };
-
 const writeToLocalStorage = (key, value) => {
   //value turned to string
   const stringifiedValue = JSON.stringify(value);
@@ -149,6 +156,6 @@ const saveToLocalStorage = (event) => {
     writeToLocalStorage("planner", planner);
   }
 };
-
+$("#refreshBtn").click(resetPlanner);
 timeBlocks.click(saveToLocalStorage);
 $(document).ready(onReady);
